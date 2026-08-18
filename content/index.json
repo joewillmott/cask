@@ -1,0 +1,38 @@
+[
+  // ============================================================
+  // cask.ink — static host manifest
+  //
+  // This file is ONLY required if you are hosting on a static
+  // platform such as S3, GitHub Pages, Netlify or Cloudflare Pages.
+  //
+  // On standard shared hosting (cPanel, Hostinger, SiteGround etc.)
+  // this file is ignored — /content/ is scanned automatically via PHP.
+  //
+  // HOW TO UPDATE: add or remove entries below to match the .md
+  // files in your /content/ folder. Each entry maps one file.
+  //
+  // REQUIRED:  "file"  — the exact filename including .md extension
+  // OPTIONAL:  all other fields (pulled from frontmatter if omitted)
+  //
+  // EXAMPLE ENTRY:
+  // {
+  //   "file":       "my-page.md",
+  //   "identifier": "my-page",
+  //   "title":      "My Page",
+  //   "excerpt":    "A short description.",
+  //   "tags":       ["example"],
+  //   "parent":     null,
+  //   "order":      1
+  // }
+  // ============================================================
+
+  { "file": "welcome.md",            "identifier": "welcome",            "title": "Welcome to cask.ink", "parent": null,                "order": 1 },
+  { "file": "features.md",           "identifier": "features",           "title": "Features",            "parent": "welcome.md",        "order": 1 },
+  { "file": "faqs.md",               "identifier": "faqs",               "title": "FAQs",                "parent": "welcome.md",        "order": 2 },
+  { "file": "getting-started.md",    "identifier": "getting-started",    "title": "Getting Started",     "parent": null,                "order": 2 },
+  { "file": "installing-cask.md",    "identifier": "installing-cask",    "title": "Installing cask",     "parent": "getting-started.md","order": 1 },
+  { "file": "brand-styling.md",      "identifier": "brand-styling",      "title": "Brand styling",       "parent": "getting-started.md","order": 2 },
+  { "file": "content-management.md", "identifier": "content-management", "title": "Content management",  "parent": "getting-started.md","order": 3 },
+  { "file": "navbar.md",             "identifier": "navbar",             "title": "Managing your navbar", "parent": "getting-started.md","order": 4 },
+  { "file": "cask-ai.md",            "identifier": "cask-ai",            "title": "Cask AI",             "parent": null,                "order": 3 }
+]
