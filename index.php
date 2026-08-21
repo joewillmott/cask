@@ -44,7 +44,7 @@ $escaped_site_name = htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $escaped_site_name ?></title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>">
 
     <!-- marked.js for markdown rendering. Swap for local copy if you prefer. -->
     <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
