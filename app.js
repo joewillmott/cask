@@ -42,7 +42,15 @@
 
         if (elSearchInput) {
             elSearchInput.addEventListener('input', onSearch);
+            elSearchInput.placeholder = 'Search… (⌘K)';
         }
+
+        document.addEventListener('keydown', e => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                elSearchInput && elSearchInput.focus();
+            }
+        });
 
         initWikiLinkHandler();
         initAdmin();
@@ -90,7 +98,7 @@
         if (hash && nodeMap[hash]) {
             loadPage(hash);
         } else if (nodeTree.length > 0) {
-            loadPage(findFirstLeaf(nodeTree[0]).identifier);
+            loadPage(nodeTree[0].identifier);
         }
     }
 
@@ -115,9 +123,15 @@
         });
 
         // Pass 2: resolve parents
+        // Parent values in frontmatter may be identifiers ("welcome") or filenames ("welcome.md").
+        // Try both so either convention works.
         const roots = [];
         allNodes.forEach(node => {
-            const p = node.parent && nodeMap[node.parent];
+            const parentVal = node.parent;
+            const p = parentVal && (
+                nodeMap[parentVal] ||
+                nodeMap[parentVal.replace(/\.(md|txt)$/i, '')]
+            );
             if (p && p !== node) {
                 p.children.push(node);
                 node._resolvedParent = p;
@@ -467,16 +481,9 @@
     // root.style.setProperty() is NEVER called — it would override style.css.
 
     function initAdmin() {
-        const trigger = document.getElementById('cask-admin-trigger');
         const overlay = document.getElementById('cask-modal-overlay');
         const closeBtn = document.getElementById('cask-modal-close');
-        if (!trigger || !overlay) return;
-
-        trigger.addEventListener('click', () => {
-            populateAdminFromComputedStyles();
-            overlay.classList.add('open');
-            overlay.setAttribute('aria-hidden', 'false');
-        });
+        if (!overlay) return;
 
         closeBtn && closeBtn.addEventListener('click', closeAdmin);
         overlay.addEventListener('click', e => { if (e.target === overlay) closeAdmin(); });
@@ -517,12 +524,6 @@
             closeAdmin();
         });
 
-        document.getElementById('admin-reset') && document.getElementById('admin-reset').addEventListener('click', () => {
-            const dynStyle = document.getElementById('cask-dynamic-styles');
-            if (dynStyle) dynStyle.textContent = '';
-            populateAdminFromComputedStyles();
-        });
-
         document.getElementById('admin-export-css') && document.getElementById('admin-export-css').addEventListener('click', exportCSS);
 
         document.getElementById('admin-map-save') && document.getElementById('admin-map-save').addEventListener('click', () => {
@@ -531,6 +532,14 @@
         });
 
         populateDataMappingFields();
+
+        // Auto-open admin panel if ?admin is present in the URL
+        if (new URLSearchParams(window.location.search).has('admin')) {
+            populateAdminFromComputedStyles();
+            overlay.classList.add('open');
+            overlay.setAttribute('aria-hidden', 'false');
+            history.replaceState(null, '', window.location.pathname);
+        }
     }
 
     function closeAdmin() {
@@ -578,6 +587,7 @@
         setVal('admin-content-max-width', '--content-max-width', '72ch');
         setVal('admin-radius-sm',         '--radius-sm',         '3px');
         setVal('admin-radius-md',         '--radius-md',         '6px');
+        setVal('admin-radius-hero',       '--radius-hero',       '8px');
         setVal('admin-radius-tag',        '--radius-tag',        '3px');
 
         // Font fields — CSS vars return empty for font strings in some browsers, use fallbacks
@@ -615,10 +625,8 @@
             const el = document.getElementById(id);
             if (el && el.indeterminate === false && !el.dataset.set) { el.checked = true; el.dataset.set = '1'; }
         });
-        ['admin-hide-title', 'admin-hide-frontmatter'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el && !el.dataset.set) { el.checked = false; el.dataset.set = '1'; }
-        });
+        const hideTitleEl = document.getElementById('admin-hide-title');
+        if (hideTitleEl && !hideTitleEl.dataset.set) { hideTitleEl.checked = false; hideTitleEl.dataset.set = '1'; }
     }
 
     function rgbToHex(rgb) {
@@ -655,6 +663,7 @@
             'content-max-width': get('admin-content-max-width'),
             'radius-sm':         get('admin-radius-sm'),
             'radius-md':         get('admin-radius-md'),
+            'radius-hero':       get('admin-radius-hero'),
             'h1-size':           get('admin-h1-size'),
             'h1-weight':         get('admin-h1-weight'),
             'h2-size':           get('admin-h2-size'),
@@ -664,7 +673,6 @@
             'font-imports':      get('admin-font-imports'),
             'logo-url':          get('admin-logo-url'),
             'hide-title':        getCheck('admin-hide-title'),
-            'hide-frontmatter':  getCheck('admin-hide-frontmatter'),
             'show-tags':         getCheck('admin-show-tags'),
             'show-breadcrumb':   getCheck('admin-show-breadcrumb'),
         };
@@ -721,7 +729,7 @@
 
         dynStyle.textContent = `${imports}
 :root {
-${decl('--color-bg',          v['color-bg'])}${decl('--color-text',        v['color-text'])}${decl('--color-accent',      v['color-accent'])}${decl('--color-sidebar-bg',  v['color-sidebar-bg'])}${decl('--color-navbar-bg',   v['color-navbar-bg'])}${decl('--color-border',      v['color-border'])}${decl('--color-muted',       v['color-muted'])}${decl('--color-code-bg',     v['color-code-bg'])}${decl('--color-code-text',   v['color-code-text'])}${decl('--color-hover-bg',    v['color-hover-bg'])}${decl('--color-tag-bg',      v['color-tag-bg'])}${decl('--color-tag-text',    v['color-tag-text'])}${decl('--color-tag-border',  v['color-tag-border'])}${decl('--radius-tag',        v['radius-tag'])}${decl('--font-body',         v['font-body'])}${decl('--font-heading',      v['font-heading'])}${decl('--font-ui',           v['font-ui'])}${decl('--font-size-base',    v['font-size-base'])}${decl('--line-height-body',  v['line-height-body'])}${decl('--sidebar-width',     v['sidebar-width'])}${decl('--content-max-width', v['content-max-width'])}${decl('--radius-sm',         v['radius-sm'])}${decl('--radius-md',         v['radius-md'])}}
+${decl('--color-bg',          v['color-bg'])}${decl('--color-text',        v['color-text'])}${decl('--color-accent',      v['color-accent'])}${decl('--color-sidebar-bg',  v['color-sidebar-bg'])}${decl('--color-navbar-bg',   v['color-navbar-bg'])}${decl('--color-border',      v['color-border'])}${decl('--color-muted',       v['color-muted'])}${decl('--color-code-bg',     v['color-code-bg'])}${decl('--color-code-text',   v['color-code-text'])}${decl('--color-hover-bg',    v['color-hover-bg'])}${decl('--color-tag-bg',      v['color-tag-bg'])}${decl('--color-tag-text',    v['color-tag-text'])}${decl('--color-tag-border',  v['color-tag-border'])}${decl('--radius-tag',        v['radius-tag'])}${decl('--font-body',         v['font-body'])}${decl('--font-heading',      v['font-heading'])}${decl('--font-ui',           v['font-ui'])}${decl('--font-size-base',    v['font-size-base'])}${decl('--line-height-body',  v['line-height-body'])}${decl('--sidebar-width',     v['sidebar-width'])}${decl('--content-max-width', v['content-max-width'])}${decl('--radius-sm',         v['radius-sm'])}${decl('--radius-md',         v['radius-md'])}${decl('--radius-hero',       v['radius-hero'])}}
 .cask-markdown h1 { ${v['h1-size'] ? `font-size: ${v['h1-size']};` : ''} ${v['h1-weight'] ? `font-weight: ${v['h1-weight']};` : ''} }
 .cask-markdown h2 { ${v['h2-size'] ? `font-size: ${v['h2-size']};` : ''} ${v['h2-weight'] ? `font-weight: ${v['h2-weight']};` : ''} }
 .cask-markdown h3 { ${v['h3-size'] ? `font-size: ${v['h3-size']};` : ''} ${v['h3-weight'] ? `font-weight: ${v['h3-weight']};` : ''} }
@@ -819,6 +827,7 @@ ${hideTitle}${hideBreadcrumb}${hideTags}`.trim();
     /* Shape */
     --radius-sm:         ${v['radius-sm']};
     --radius-md:         ${v['radius-md']};
+    --radius-hero:       ${v['radius-hero']};
 }`;
 
         // Fetch the live style.css from the server so the export is a full drop-in replacement.
@@ -860,6 +869,22 @@ ${imports}
 ${rootBlock}
 `;
         }
+
+        // Build the display-toggle block from the checkbox states.
+        // This block is replaced on every export so it always reflects the current settings.
+        const toggleRules = [
+            v['hide-title']       ? '.cask-markdown h1:first-child { display: none !important; }' : '',
+            !v['show-breadcrumb'] ? '.cask-breadcrumb { display: none !important; }'               : '',
+            !v['show-tags']       ? '.cask-tags { display: none !important; }'                     : '',
+        ].filter(Boolean).join('\n');
+
+        const toggleBlock = toggleRules
+            ? `\n/* cask:toggles -- do not edit this block manually */\n${toggleRules}\n/* /cask:toggles */`
+            : '';
+
+        // Remove any existing toggle block from the CSS, then append the new one (if any).
+        css = css.replace(/\n?\/\* cask:toggles[\s\S]*?\/\* \/cask:toggles \*\//g, '');
+        css = css.trimEnd() + toggleBlock + '\n';
 
         const a = Object.assign(document.createElement('a'), {
             href:     URL.createObjectURL(new Blob([css], { type: 'text/css' })),

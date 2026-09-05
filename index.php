@@ -8,6 +8,8 @@
 // SITE CONFIG — edit these
 // ============================================================
 
+$cask_version = '1.0.0';
+
 $site_name    = 'cask.ink';
 $site_logo    = '';                  // URL to logo image, or leave empty
 
@@ -99,11 +101,13 @@ $escaped_site_name = htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8');
                 <span class="cask-empty">Loading…</span>
             </li>
         </ul>
+        <!--
         <div class="cask-sidebar__footer">
             <button class="cask-admin-trigger" id="cask-admin-trigger" title="Admin settings" aria-label="Open admin settings">
                 cask v0.0.1
             </button>
-        </div>
+        </div> 
+        -->
     </aside>
 
     <!-- CONTENT PANE -->
@@ -111,10 +115,10 @@ $escaped_site_name = htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8');
         <div class="cask-content__inner">
             <nav class="cask-breadcrumb" id="cask-breadcrumb" aria-label="Breadcrumb"></nav>
             <img class="cask-thumbnail" id="cask-thumbnail" src="" alt="" style="display:none;">
-            <div class="cask-tags" id="cask-tags" style="display:none;"></div>
             <div class="cask-markdown" id="cask-markdown">
                 <span class="cask-loading">Loading content…</span>
             </div>
+            <div class="cask-tags" id="cask-tags" style="display:none;"></div>
         </div>
     </main>
 
@@ -307,6 +311,10 @@ $escaped_site_name = htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8');
                         <label>Medium Radius</label>
                         <input type="text" id="admin-radius-md" placeholder="6px">
                     </div>
+                    <div class="cask-admin-field">
+                        <label>Hero Image Radius</label>
+                        <input type="text" id="admin-radius-hero" placeholder="8px">
+                    </div>
                 </div>
             </section>
 
@@ -349,10 +357,6 @@ $escaped_site_name = htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8');
                         Hide page title from page header
                     </label>
                     <label class="cask-admin-checkbox">
-                        <input type="checkbox" id="admin-hide-frontmatter">
-                        Hide YAML frontmatter in document body
-                    </label>
-                    <label class="cask-admin-checkbox">
                         <input type="checkbox" id="admin-show-tags">
                         Show tag badges on pages
                     </label>
@@ -364,12 +368,12 @@ $escaped_site_name = htmlspecialchars($site_name, ENT_QUOTES, 'UTF-8');
             </section>
 
             <div class="cask-admin-actions">
-                <p class="cask-admin-note">Changes preview instantly. Export your CSS to make them permanent.</p>
+                <p class="cask-admin-note">Changes apply instantly. Export your CSS to make them permanent.</p>
                 <div class="cask-admin-actions__buttons">
-                    <button class="cask-btn cask-btn--secondary" id="admin-reset">Reset to defaults</button>
                     <button class="cask-btn cask-btn--secondary" id="admin-export-css">Export CSS</button>
-                    <button class="cask-btn cask-btn--primary" id="admin-save">Apply &amp; Preview</button>
+                    <button class="cask-btn cask-btn--primary" id="admin-save">Done</button>
                 </div>
+                <p class="cask-admin-version">cask v<?= htmlspecialchars($cask_version) ?></p>
             </div>
 
         </div><!-- /design tab -->

@@ -1,74 +1,125 @@
 ---
 id: brand-styling
 title: Brand styling
-parent: getting-started.md
-order: 2
-excerpt: How to change colours, fonts and layout to match your brand, using the admin panel or by editing style.css directly.
+parent: getting-started
+order: 3
+excerpt: How to change colours, fonts, and layout to match your brand — using the admin panel or by editing CSS directly.
 tags:
   - styling
   - design
-  - css
+  - admin
 ---
 
 # Brand styling
 
-cask.ink gives you two ways to style your site. The admin panel lets you design visually in the browser and export a CSS file. Direct file editing lets you change values in `style.css` without opening the browser at all. Both methods produce the same result — a `style.css` file on your server that controls how your site looks.
+cask includes a live design panel that lets you customise the look of your site without touching any code. Changes apply as you type, so you can see exactly what you're getting before saving anything.
 
-## Using the admin panel
+## Opening the admin panel
 
-Click **cask v0.0.1** in the bottom-left corner of the sidebar to open the admin panel.
+Add `?admin` to the end of your site URL and press Enter:
 
-The Design tab contains controls for:
+```
+https://yoursite.com/?admin
+```
 
-- **Site Identity** — site title and logo URL
-- **Colours** — ten named colour variables covering backgrounds, text, accents, borders, code blocks, hover states and tags
-- **Fonts and Stylesheets** — Google Fonts import URLs and font-stack fields for headings, body text and UI elements
-- **Text Styles and Sizes** — base font size, line height, and heading size/weight for H1, H2 and H3
-- **Layout and Sizing** — sidebar width, content max-width and border radius values
-- **Tags** — background, text, border colour and corner radius for tag badges
-- **Display Preferences** — toggles for the page title, breadcrumb trail and tag badges
+The admin panel opens as a modal overlay. The `?admin` part is silently removed from the URL once the panel is open — your visitors will never see it.
 
-Changes preview instantly on the page behind the modal. When you are happy with the result, click **Export CSS**. This downloads a `style.css` file containing your choices. Upload it to your server, replacing the existing `style.css`, and the changes are permanent.
+## The Design tab
 
-The admin panel does not save anything between sessions. It is a design tool, not a settings store. Your `style.css` file is the only source of truth.
+The Design tab is divided into sections covering every visual aspect of your site.
 
-## Editing style.css directly
+### Colours
 
-Open `style.css` in any text editor. The `:root` block at the top of the file contains all the variables the admin panel controls:
+Controls all the key colours in the interface via CSS custom properties. Each colour field shows both a colour picker swatch and a hex text input — you can use either.
+
+| Setting | What it controls |
+|---|---|
+| Page Background | The main content area background |
+| Body Text | All body copy |
+| Accent | Links, active sidebar items, interactive highlights |
+| Sidebar Background | The left navigation panel |
+| Navbar Background | The top navigation bar |
+| Border | Dividers, input borders, table lines |
+| Muted Text | Secondary text, labels, placeholders |
+| Code Background | Background of inline and fenced code |
+| Code Text | Text colour inside code blocks |
+| Hover Background | Background colour when hovering sidebar items |
+
+### Typography
+
+| Setting | What it controls |
+|---|---|
+| Body Font | Font stack for all body text |
+| Heading Font | Font stack for all headings |
+| Mono Font | Font stack for code and UI labels |
+| Base Font Size | The root font size everything else scales from |
+| Line Height | Line spacing for body text |
+| H1 / H2 / H3 Size & Weight | Individual control over heading sizes and weights |
+| Font Import URL | A Google Fonts or similar `@import` URL to load custom fonts |
+
+To use a Google Font, go to [fonts.google.com](https://fonts.google.com), select a font, copy the `@import` URL from the "Use on the web" panel, and paste it into the Font Import URL field. Then update the Body Font or Heading Font field to use that font name.
+
+### Layout & Sizing
+
+| Setting | What it controls |
+|---|---|
+| Sidebar Width | How wide the left navigation panel is |
+| Content Max Width | The maximum width of the main content area |
+| Small Radius | Corner radius for small elements (inputs, code, tags) |
+| Medium Radius | Corner radius for medium elements (cards, modals) |
+| Hero Image Radius | Corner radius applied to hero images on pages |
+
+### Tags
+
+Controls the appearance of the tag badges shown at the bottom of pages:
+
+| Setting | What it controls |
+|---|---|
+| Tag Background | Badge background colour |
+| Tag Text | Badge text colour |
+| Tag Border | Badge border colour |
+| Tag Corner Radius | How rounded the badge corners are |
+
+### Display Preferences
+
+Three checkboxes that control what elements appear on pages:
+
+| Checkbox | Effect when checked |
+|---|---|
+| Hide page title | Hides the H1 heading at the top of each page |
+| Show tag badges | Displays tag badges at the bottom of each page |
+| Show breadcrumb trail | Displays the breadcrumb navigation above the content |
+
+## Making your changes permanent
+
+**Changes in the admin panel only last for your current session.** They're applied as a temporary style overlay — nothing is written to any file while you're working.
+
+To save your changes permanently:
+
+1. Get everything looking the way you want in the admin panel
+2. Click **Export CSS**
+3. A file called `style.css` downloads to your computer
+4. Upload it to your site's root folder, overwriting the existing `style.css`
+
+That's it. The exported file is a complete drop-in replacement for the original — it contains the full stylesheet with your values baked in, plus a small block at the end recording your display preferences.
+
+## Site title and logo
+
+The site title and logo are **not** set through the admin panel — they're PHP values in `index.php`. See [[navbar]] for how to set them.
+
+## Editing CSS directly
+
+If you're comfortable with CSS, you can open `style.css` in any text editor and change values directly. All the design tokens live in a `:root { }` block near the top of the file. The variable names match what you see in the admin panel:
 
 ```css
 :root {
-    --color-bg:          #fafafa;
-    --color-text:        #000000;
-    --color-accent:      #5C7A6B;
-    --color-sidebar-bg:  #ffffff;
-    --color-navbar-bg:   #ffffff;
-    /* ... */
+    --color-bg:          #ffffff;
+    --color-text:        #1a1a1a;
+    --color-accent:      #2563eb;
+    --font-body:         'Inter', system-ui, sans-serif;
+    --sidebar-width:     252px;
+    /* etc. */
 }
 ```
 
-Change any value, save the file, and upload it to your server. The site reflects the change on the next page load.
-
-If your host is serving a cached version of `style.css`, you may need to purge the cache from your hosting control panel or Cloudflare dashboard before the change is visible.
-
-## Using custom fonts
-
-To use Google Fonts, go to [fonts.google.com](https://fonts.google.com), select your fonts, and copy the stylesheet URL from the import code Google provides. It looks like:
-
-```
-https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap
-```
-
-In the admin panel, paste this URL into the **Google Fonts / CSS Import URLs** field (one URL per line). Then set the font name in the relevant font-stack field:
-
-```
-'Inter', system-ui, sans-serif
-```
-
-When you export and upload the CSS, the import and the font-family declaration are both included in the file.
-
-To add fonts directly in `style.css`, add an `@import` line at the very top of the file, before the `:root` block:
-
-```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-```
+Edit these values, save the file, and upload it. The admin panel will read your custom values the next time it's opened.

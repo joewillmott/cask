@@ -1,52 +1,106 @@
 ---
 id: faqs
 title: FAQs
-parent: welcome.md
-order: 2
-excerpt: Honest answers to the questions people actually ask.
+order: 5
+excerpt: Common questions about installing and using cask.
 tags:
-  - faq
   - help
+  - faq
 ---
 
 # FAQs
 
-## Do I need a server to run cask.ink?
+## Installation
 
-You need somewhere to host files that is reachable over HTTP. Shared hosting (cPanel, Hostinger, SiteGround and equivalents) works perfectly and gives you the full feature set including automatic content discovery. Static hosts (S3, GitHub Pages, Netlify) also work, but require you to maintain a `content/index.json` manifest manually and do not support the MCP endpoint.
+### Does cask work on shared hosting?
 
-## Do I need to know how to code?
+Yes — that's exactly what it's built for. Any host running PHP 7.4 or later will work. cPanel-based hosts (Hostinger, SiteGround, DreamHost, Namecheap, and most others) all qualify.
 
-No. Installing cask.ink is unzipping a file and uploading the contents to your hosting via FTP or a file manager. Styling your site is editing a CSS file or using the built-in admin panel. Adding content is dropping markdown files into a folder.
+### Does cask work on GitHub Pages, Netlify, or Vercel?
 
-## What markdown features does cask.ink support?
+Not fully. These are static hosts and don't run PHP, which cask needs to read and serve content files. A partial fallback exists — if you create a `content/index.json` file with your page metadata pre-generated, cask can read that instead. But you'll lose the ability to serve the raw markdown files dynamically, so page content won't load.
 
-Anything marked.js supports, which covers the full CommonMark specification: headings, bold, italic, blockquotes, ordered and unordered lists, code blocks with syntax hints, tables, horizontal rules, images and standard links. cask.ink adds `[[wiki-link]]` syntax on top of that for internal navigation.
+For most users: just use a shared PHP host. They're inexpensive and cask runs perfectly on them.
 
-## Can I use cask.ink for a blog?
+### I uploaded the files but see a blank page. What's wrong?
 
-Yes. There is nothing documentation-specific about the platform. It reads markdown files and presents them. If you want to call them blog posts, they are blog posts. Hierarchy, tags and ordering work exactly the same way.
+A few things to check:
 
-## Can I password-protect my site?
+1. Make sure `index.php` is in the folder you're accessing, not inside a subdirectory created by the zip extraction
+2. Check that your host is running PHP 7.4 or later — look in your host's control panel under PHP settings
+3. Make sure the `/content/` folder exists and contains at least one `.md` file
+4. Check that file permissions allow PHP to read the `/content/` folder — `755` for the folder and `644` for the files is standard
 
-Not natively in this version. cask.ink is designed for public-facing content. If you need access control, the simplest approach is to put your hosting's built-in HTTP authentication (`.htpasswd` on Apache) in front of the directory.
+### I see a PHP error when I load the page
 
-## What happens if I delete a file?
+The most common cause is a PHP version below 7.4. cask uses some syntax that older PHP versions don't support. Log into your cPanel, find the PHP version selector, and switch to 7.4 or 8.x.
 
-It disappears from the sidebar on the next page load. Any internal links pointing to it will render as greyed-out unresolved wiki links rather than broken anchors.
+### Can I install cask in a subfolder?
 
-## Will cask.ink work on Windows hosting?
+Yes. Upload to any subfolder inside `public_html/` and access it at `yoursite.com/subfolder-name/`. Everything works the same.
 
-Yes. The PHP is standard and has no Unix-specific dependencies. The only requirement is PHP 7.4 or above.
+---
 
-## How is this different from Obsidian Publish?
+## Content
 
-Obsidian Publish is tightly coupled to the Obsidian app ecosystem. Your content is hosted on Obsidian's infrastructure, priced per site per month, and the publishing experience is designed around Obsidian's own vault structure. cask.ink is self-hosted, works with any markdown files regardless of what tool created them, costs nothing beyond your existing hosting, and ships with an MCP endpoint Obsidian Publish does not have.
+### Do I need to use frontmatter in every file?
 
-## How is this different from GitBook?
+No. A file with no frontmatter at all will still appear in cask — its title and identifier are derived from the filename. Frontmatter is only required when you want to control ordering, hierarchy, tags, or other metadata.
 
-GitBook starts at $65 per site per month and adds per-seat charges on top. It requires content to live inside GitBook's own platform. cask.ink is self-hosted, has no per-seat pricing, and your content stays in plain files you own entirely.
+### Can I use subfolders inside `/content/`?
 
-## Can I contribute to cask.ink?
+cask currently reads only files directly inside `/content/` — it doesn't recurse into subfolders. Use the `parent:` frontmatter field to create hierarchy instead of folders. You can still organise your files into subfolders on disk if you like, but cask won't find them there.
 
-cask.ink is open source. If you have found a bug or want to propose a feature, raise an issue or open a pull request.
+### What happens if two files have the same `id`?
+
+The second one processed will overwrite the first in the page index. Avoid duplicate IDs — they'll cause one page to become unreachable.
+
+### Can I use `.txt` files instead of `.md`?
+
+Yes. cask treats `.txt` and `.md` files identically — both are parsed as markdown.
+
+---
+
+## Styling
+
+### My changes in the admin panel disappeared after I closed it
+
+This is expected. The admin panel only applies a temporary preview while it's open. To save your changes permanently, click **Export CSS** before closing, then upload the downloaded `style.css` file to overwrite the original on your server.
+
+### I uploaded a new style.css but nothing changed
+
+If your site is behind Cloudflare or another CDN, the old CSS file may be cached. Try purging the cache from your Cloudflare dashboard, or do a hard refresh in your browser (Ctrl+Shift+R on Windows, Cmd+Shift+R on Mac).
+
+### Can I edit style.css directly?
+
+Yes. Open it in any text editor. The design tokens are in a `:root { }` block near the top of the file with clearly labelled variable names. Edit the values, save, and re-upload. The admin panel reads these values automatically the next time it opens.
+
+---
+
+## The admin panel
+
+### How do I open the admin panel?
+
+Add `?admin` to the end of your site URL and press Enter:
+
+```
+https://yoursite.com/?admin
+```
+
+The panel opens as a modal. The `?admin` part is removed from the URL automatically so your visitors never see it.
+
+### Can my visitors access the admin panel?
+
+Yes — there's no password protecting it. The admin panel only controls visual styling and display preferences though; it can't modify, delete, or add any content files. Your actual content is only changeable by someone with access to your server files.
+
+---
+
+## AI and MCP
+
+### Do I need to configure anything to use the MCP server?
+
+No. The MCP server at `/mcp.php` works as soon as cask is installed. Just give an MCP-compatible AI tool the URL and it will discover the available tools automatically.
+
+### Is my content secure if I enable MCP?
+
+The MCP server exposes exactly the same content that's publicly visible on your site. It adds no additional access — if a page is public on your site, it's accessible via MCP. There's no way to selectively restrict MCP access to specific pages in the current version.

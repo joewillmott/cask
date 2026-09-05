@@ -1,110 +1,83 @@
 ---
 id: cask-ai
-title: Cask AI
-order: 3
-excerpt: cask.ink ships with a built-in MCP endpoint that makes your content queryable by AI tools, agents and coding assistants — no configuration required.
+title: AI tools
+order: 4
+excerpt: Connect your cask documentation to Claude, Cursor, and other AI tools via a built-in MCP server — no configuration required.
 tags:
   - ai
   - mcp
   - integrations
 ---
 
-# Cask AI
+# AI tools
 
-Every cask.ink installation ships with `mcp.php` — a Model Context Protocol (MCP) server endpoint that exposes your content to AI tools. Any MCP-compatible client can connect to it and query your documentation directly: listing pages, fetching raw markdown, and searching by keyword.
-
-This is not a bolt-on feature. It is part of the default install, active from the moment you put cask.ink on a server, requiring no configuration and no API key for public sites.
+cask includes a built-in MCP (Model Context Protocol) server. Point any MCP-compatible AI tool at your cask site and it can read, search, and reason over all your documentation automatically.
 
 ## What MCP is
 
-The Model Context Protocol is an open standard, developed by Anthropic, that lets AI tools connect to external data sources in a structured way. Instead of copy-pasting documentation into a chat window, an MCP-compatible tool like Claude, Cursor or any MCP-aware agent can query your cask.ink site directly while working — reading pages, searching for relevant content, and navigating your hierarchy — the same way it would use a tool or a web search.
+MCP is an open standard that lets AI tools connect to external data sources in a structured way. Instead of pasting documentation into a chat window, you give an AI tool a URL and it can query your content directly — fetching pages, searching for information, and navigating the hierarchy on its own.
 
-Your documentation becomes part of the AI's working context, automatically, without any manual retrieval step.
+## Your MCP endpoint
 
-## The endpoint
-
-The MCP endpoint lives at:
+Your cask MCP server is available at:
 
 ```
-https://yourdomain.com/path-to-cask/mcp.php
+https://yoursite.com/mcp.php
 ```
 
-It accepts POST requests with a JSON body specifying the tool to call and its arguments. It also accepts GET requests with a `tool` query parameter, and returns the tool manifest when called with no arguments.
+Replace `yoursite.com` with your actual domain. No setup, no API key, no configuration — it works as soon as cask is installed.
 
-## Available tools
+## Connecting to Claude
 
-### `list_pages`
+In Claude's settings, go to **Integrations** and add a new MCP server. Paste your `mcp.php` URL. Claude will discover the available tools automatically and can then answer questions about your documentation, find specific pages, and navigate the content hierarchy.
 
-Returns the full list of pages with their hierarchy, titles, excerpts, tags and parent references.
+## Connecting to Cursor
 
-```json
-{
-  "tool": "list_pages"
-}
+In Cursor, open Settings and find the MCP section. Add your `mcp.php` URL as a new server. Cursor will index the available tools and can use your documentation as context when writing code, answering questions, or explaining concepts.
+
+## What the MCP server exposes
+
+The MCP server provides three tools:
+
+### list_pages
+
+Returns the complete list of pages with their titles, identifiers, tags, excerpts, hierarchy, and sort order. An AI tool uses this to understand the structure of your documentation before diving into specific pages.
+
+### get_page
+
+Fetches the full raw markdown content of a single page, identified by its `id` or filename. An AI tool uses this to read a specific page in detail.
+
+### search_pages
+
+Searches page titles, body content, and tags for a given query string. Returns all matching pages with their metadata. An AI tool uses this to find relevant content without having to read every page.
+
+## Calling the MCP server directly
+
+You can also call `mcp.php` directly from a browser or HTTP client to inspect what it returns.
+
+With no parameters, it returns the tool manifest:
+
+```
+GET https://yoursite.com/mcp.php
 ```
 
-### `get_page`
+To call a specific tool, pass a `tool` parameter:
 
-Returns the raw markdown content of a single page, identified by its `id` or filename.
+```
+GET https://yoursite.com/mcp.php?tool=list_pages
+GET https://yoursite.com/mcp.php?tool=get_page&id=welcome
+GET https://yoursite.com/mcp.php?tool=search_pages&query=installation
+```
+
+Or POST a JSON body:
 
 ```json
 {
   "tool": "get_page",
-  "arguments": {
-    "id": "content-management"
-  }
+  "arguments": { "id": "welcome" }
 }
 ```
 
-The `id` field accepts the page's declared identifier, its filename with or without the `.md` extension.
+## A note on access control
 
-### `search_pages`
-
-Searches page titles, body content and tags for a query string. Returns all matching pages with their metadata.
-
-```json
-{
-  "tool": "search_pages",
-  "arguments": {
-    "query": "frontmatter"
-  }
-}
-```
-
-## Connecting to Claude
-
-To connect your cask.ink MCP endpoint to Claude desktop:
-
-1. Open your Claude desktop configuration file. On macOS this is at `~/Library/Application Support/Claude/claude_desktop_config.json`.
-2. Add your cask.ink endpoint as an MCP server:
-
-```json
-{
-  "mcpServers": {
-    "my-docs": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://yourdomain.com/path-to-cask/mcp.php"
-      ]
-    }
-  }
-}
-```
-
-3. Restart Claude desktop. Your documentation will be available as a connected knowledge source.
-
-## Connecting to Cursor
-
-In Cursor, go to **Settings → MCP** and add a new server with your endpoint URL. Cursor will discover the available tools automatically and make them available to the AI assistant during coding sessions.
-
-## A note on static hosts
-
-`mcp.php` requires PHP to execute. It will not function on static hosts (S3, GitHub Pages, Netlify). If you are on a static host and want MCP support, the only current option is to move to PHP hosting. A static-host MCP fallback using a pre-generated `mcp.json` is planned for a future release.
-
-## Security
-
-By default the MCP endpoint is publicly accessible, because the content it returns is the same content visible on the public site. It is a machine-readable door onto what is already public, not a new exposure surface.
-
-Access control for private documentation sites is a planned feature. In the interim, if you need to restrict MCP access, your host's `.htpasswd` basic authentication can be placed in front of `mcp.php` specifically.
+The MCP server exposes exactly the same content that's publicly visible on your site. It applies no authentication. If your documentation is meant to be public, this is fine. If you need private documentation, cask is not yet the right tool.

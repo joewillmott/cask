@@ -1,100 +1,143 @@
 ---
 id: content-management
-title: Content management
-parent: getting-started.md
-order: 3
-excerpt: How to add, structure and organise your markdown files in cask.ink.
+title: Writing content
+parent: getting-started
+order: 2
+excerpt: How to write, structure, and organise your documentation in cask.
 tags:
   - content
   - markdown
-  - frontmatter
+  - structure
 ---
 
-# Content management
+# Writing content
 
-## Adding pages
-
-Drop any `.md` or `.txt` file into the `/content/` folder on your server. It will appear in the sidebar the next time someone loads the page. That is the entire process on PHP hosting.
-
-On static hosts, you also need to add an entry for the file in `content/index.json`. See [[installing-cask|Installing cask]] for the format.
+Every page in cask is a plain `.md` or `.txt` file in the `/content/` folder. Create a file, add a frontmatter block at the top, write your content below it in markdown, and cask picks it up immediately — no restart, no build, no import.
 
 ## Frontmatter
 
-cask.ink reads metadata from the YAML frontmatter block at the top of each file — the section between the `---` fences. None of it is required. Files with no frontmatter at all will still appear, using the filename as the title.
+Frontmatter is a block of structured fields at the very top of each file, wrapped in triple dashes. It tells cask how to title the page, where it sits in the hierarchy, how to sort it, and what tags to show.
 
-```yaml
+```
 ---
 id: my-page
 title: My Page
-parent: parent-page.md
+parent: getting-started
+order: 3
 excerpt: A short description shown in search results.
 tags:
   - example
-  - guide
-order: 3
+  - guides
+thumbnail: https://example.com/my-hero-image.jpg
+---
+
+Your markdown content starts here.
+```
+
+### Frontmatter reference
+
+| Field | Purpose | Required? |
+|---|---|---|
+| `id` | Unique identifier — used in URLs, wiki links, and parent references | Recommended |
+| `title` | Page title shown in the sidebar and as the page heading | Recommended |
+| `parent` | `id` of the parent page — creates hierarchy in the sidebar | Optional |
+| `order` | Integer sort position within the same level, lowest first | Optional |
+| `excerpt` | Short description shown in search results | Optional |
+| `tags` | Tags shown as badges at the bottom of the page | Optional |
+| `thumbnail` | URL of a hero image displayed above the page content | Optional |
+
+If `id` is omitted, cask derives it from the filename (`my-page.md` → `my-page`). If `title` is omitted, it's derived from the filename too. Everything else is optional.
+
+## Hierarchy
+
+Set `parent` to the `id` of another page to make it a child of that page:
+
+```
+---
+id: installing-cask
+parent: getting-started
 ---
 ```
 
-### Fields
+You can reference the parent by either its `id` or its filename — `getting-started` and `getting-started.md` both work. Hierarchy can go as deep as you need. The sidebar reflects the structure automatically, with toggle arrows on any page that has children.
 
-| Field | Purpose | Default if absent |
-|---|---|---|
-| `id` or `slug` | URL identifier for this page | Filename without extension |
-| `title` | Display title in the sidebar and page header | Filename, converted to Title Case |
-| `parent` | Filename or `id` of the parent page | None — page sits at top level |
-| `excerpt` | Short description shown in search results | First 160 characters of content |
-| `tags` | Array of tags displayed as badges | None |
-| `order` | Sort position among siblings (lower = higher) | Alphabetical by title |
+## Ordering
 
-### Custom field names
+Pages at the same level sort by `order`, lowest first. Pages without an `order` sort alphabetically after those that have one.
 
-If your files use different frontmatter keys — for example `category` instead of `parent`, or `slug` instead of `id` — you can configure cask.ink to look for those instead. Open the admin panel, go to the **Data Mapping** tab, and enter your key names as comma-separated values in priority order.
+```
+---
+order: 1
+---
+```
 
-## Structuring pages
+## Tags
 
-Hierarchy is set via the `parent` field. The value can be either the filename (`parent-page.md`) or the `id` of the parent page (`parent-page`). Both work.
-
-A page with no `parent` field sits at the top level of the sidebar. A page whose `parent` does not match any known file also falls back to the top level, so a typo in a parent reference will not break the site — it will just place the page at root until corrected.
-
-Circular parent references (A is the parent of B, B is the parent of A) are detected and both pages are placed at root.
-
-## Ordering pages
-
-Use the `order` field to control the sequence of pages within the same level of the hierarchy. Lower numbers appear first. Pages without an `order` value are sorted alphabetically by title after any ordered pages.
+Tags display as small badges at the bottom of the page. They also appear in search results and are searchable. Three formats are all valid:
 
 ```yaml
-order: 1   # appears first
-order: 2   # appears second
-order: 10  # appears after order: 2, before anything without an order
+# YAML list
+tags:
+  - setup
+  - installation
+
+# Inline list
+tags: [setup, installation]
+
+# Comma-separated string
+tags: setup, installation
 ```
+
+## Hero images
+
+Add a `thumbnail` field with an image URL to display a full-width hero image at the top of the page:
+
+```
+---
+thumbnail: https://example.com/my-image.jpg
+---
+```
+
+The image stretches to the full content width and maintains its natural proportions. The corner radius is configurable in the admin panel under Layout & Sizing.
 
 ## Wiki links
 
-Link to other pages in your cask.ink site using double-bracket syntax:
+Link between pages using double-bracket syntax:
 
 ```
-[[page-id]]                    — links to that page, uses the page title as link text
-[[page-id|Custom link text]]   — links to that page with custom text
+See [[installing-cask]] for the full walkthrough.
 ```
 
-The target can be a page `id` or a filename with or without the `.md` extension. If the target does not resolve to a known page, the link renders as plain greyed-out text rather than a broken anchor.
+The value inside the brackets is the target page's `id`. To use custom link text, add a pipe:
 
-## Images
-
-Standard markdown image syntax works:
-
-```markdown
-![Alt text](https://example.com/image.jpg)
+```
+See [[installing-cask|the installation guide]] for the full walkthrough.
 ```
 
-Images hosted on your server can be referenced with a relative path:
+If the target page doesn't exist, the link renders as plain text with a visual indicator.
 
-```markdown
-![Alt text](/images/my-image.jpg)
-```
+## Markdown reference
 
-A `hero_image` or `image` frontmatter field (or whichever key you have configured in Data Mapping) sets a hero image that appears at the top of the content pane above the page body.
+cask renders standard markdown. Everything you'd expect works:
 
-## Removing pages
+| Syntax | Result |
+|---|---|
+| `# Heading` | H1 heading |
+| `## Heading` | H2 heading |
+| `**bold**` | **bold** |
+| `*italic*` | *italic* |
+| `` `code` `` | inline code |
+| `[text](url)` | link |
+| `![alt](url)` | image |
+| `> text` | blockquote |
+| `---` | horizontal rule |
 
-Delete the file from `/content/`. On PHP hosts, it disappears from the sidebar on the next page load. On static hosts, also remove the entry from `content/index.json`.
+Fenced code blocks with triple backticks get a copy-to-clipboard button automatically.
+
+## File naming
+
+File names have no effect on the site — cask uses frontmatter for everything. Name your files however makes sense for your own filing. Lowercase with hyphens is conventional (`my-page.md`) but not required.
+
+## Supported extensions
+
+cask reads `.md` and `.txt` files. Both are treated identically — the content is always parsed as markdown regardless of extension.

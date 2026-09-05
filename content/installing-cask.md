@@ -1,9 +1,9 @@
 ---
 id: installing-cask
 title: Installing cask
-parent: getting-started.md
+parent: getting-started
 order: 1
-excerpt: How to download, upload and verify a cask.ink installation on shared or static hosting.
+excerpt: Upload cask to your web host and get to first page load in five minutes.
 tags:
   - installation
   - setup
@@ -11,25 +11,28 @@ tags:
 
 # Installing cask
 
-## On shared hosting (PHP)
+## What you need
 
-This is the recommended path. Full feature set, automatic content discovery, MCP endpoint included.
+- A web host running PHP 7.4 or later — most shared hosts qualify, including Hostinger, SiteGround, DreamHost, and Namecheap
+- Access to your host's file manager (usually via cPanel) or an FTP client
+- The cask zip file from [cask.ink](https://cask.ink) or [GitHub](https://github.com/joewillmott/cask)
 
-### Step 1 — Download
+If your host offers a "cPanel" control panel, you almost certainly have everything you need.
 
-Download the cask.ink zip from [cask.ink/download](https://cask.ink/download).
+## Step 1 — Download the zip
 
-### Step 2 — Upload
+Download the latest cask release as a zip file from [cask.ink](https://cask.ink) or the [GitHub releases page](https://github.com/joewillmott/cask/releases).
 
-Using FTP (FileZilla, Cyberduck, or similar) or your host's web-based file manager, upload the zip file to the directory where you want cask.ink to live. Some examples:
+## Step 2 — Upload and extract
 
-- `public_html/` — site lives at `yourdomain.com`
-- `public_html/docs/` — site lives at `yourdomain.com/docs`
-- `public_html/wiki/` — site lives at `yourdomain.com/wiki`
+1. Log into your host's file manager (in cPanel, it's called **File Manager**)
+2. Navigate to the folder where you want your site to live:
+   - For your root domain: `public_html/`
+   - For a subfolder like `yourdomain.com/docs/`: create a `docs` folder inside `public_html/` first
+3. Upload the zip file into that folder
+4. Right-click the zip and choose **Extract**
 
-### Step 3 — Extract
-
-Extract (unzip) the file in place. Most web file managers have a right-click "Extract" option. After extraction you should see:
+After extracting you should see these files:
 
 ```
 index.php
@@ -38,58 +41,42 @@ style.css
 content-list.php
 mcp.php
 content/
-content/index.json
-content/welcome.md
-content/getting-started.md
-(etc.)
+  welcome.md
+  features.md
+  getting-started.md
+  (and the rest of this documentation)
 ```
 
-### Step 4 — Verify
+## Step 3 — Visit your site
 
-Navigate to the directory in your browser. You should see the cask.ink documentation site — this site — loading from your own hosting. If you see a directory listing instead of the site, your host may require the file to be named `index.html`. Contact support or check your host's documentation on default index files.
+Open your site URL in a browser. You should see cask load with this documentation as its default content.
 
-### Step 5 — Add your content
+If you see a blank page or a PHP error, check that your host is running PHP 7.4 or later. Most file manager UIs show the PHP version in their settings. See [[faqs]] for other common problems.
 
-Delete the example content files from `/content/` (or keep them as reference) and add your own `.md` files. They will appear in the sidebar automatically on the next page load.
+## Step 4 — Replace the example content
 
----
+Once cask is working, delete the example `.md` files from the `/content/` folder and add your own. There's nothing else to configure — cask reads whatever is in that folder automatically.
 
-## On static hosting (S3, GitHub Pages, Netlify, Cloudflare Pages)
+See [[content-management]] for how to write and structure your files.
 
-Static hosts do not execute PHP. cask.ink detects this automatically and falls back to reading `content/index.json` instead of scanning the directory dynamically.
+## Step 5 — Set your site name and logo
 
-The trade-off: you must update `content/index.json` manually each time you add, remove or rename a content file. The MCP endpoint (`mcp.php`) will also not function, as it requires PHP.
+Open `index.php` in a text editor (or use your file manager's built-in editor). Near the top you'll see:
 
-### Setup
-
-1. Upload all files from the zip exactly as described above
-2. Open `content/index.json` — it contains a comment block explaining the format
-3. Add an entry for each `.md` file in your `/content/` folder
-4. Commit and deploy as normal for your static host
-
-Each entry in `content/index.json` looks like this:
-
-```json
-{
-  "file":       "my-page.md",
-  "identifier": "my-page",
-  "title":      "My Page",
-  "excerpt":    "A short description shown in search results.",
-  "tags":       ["example"],
-  "parent":     null,
-  "order":      1
-}
+```php
+$site_name = 'cask.ink';
+$site_logo = '';            // URL to a logo image, or leave empty
+$nav_links = [
+    ['label' => 'GitHub', 'url' => 'https://github.com/joewillmott/cask'],
+];
 ```
 
----
+Change `$site_name` to your site's name. Paste an image URL into `$site_logo` if you have a logo. Update `$nav_links` with whatever links you want in the top navbar, or set it to an empty array `[]` to show none.
 
-## Troubleshooting
+Save the file and reload your site. Full details on these settings are in [[navbar]].
 
-**The page is blank or shows an error.**
-Check that `index.php` is in the root of the directory you navigated to, and that your host supports PHP 7.4 or above.
+## Step 6 — Style your site
 
-**The sidebar shows "No content found."**
-On PHP hosts, verify that `content-list.php` is in the same directory as `index.php` and is readable by the web server. On static hosts, verify that `content/index.json` exists and contains valid JSON.
+Visit `yoursite.com/?admin` to open the design panel. From here you can change colours, fonts, layout, and display preferences with live preview. When you're happy, click **Export CSS** and upload the downloaded `style.css` to replace the original.
 
-**Styles are not loading.**
-Verify that `style.css` is in the same directory as `index.php` and was not excluded from the upload.
+Full details in [[brand-styling]].

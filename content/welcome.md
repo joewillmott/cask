@@ -1,37 +1,41 @@
 ---
 id: welcome
-title: Welcome to cask.ink
+title: Welcome to cask
 order: 1
-excerpt: cask.ink is a documentation platform built on a single, radical idea — your files should outlive any tool you use to view them.
+excerpt: A documentation site that lives in a folder. No database, no build step, no lock-in — just markdown files and a web host.
 tags:
   - introduction
 ---
 
-# Welcome to cask.ink
+# Welcome to cask
 
-Most documentation platforms want your content. They want you to write inside their editor, store your files in their database, and depend on their infrastructure to keep it accessible. The moment you stop paying, or the moment they shut down, your work is trapped inside a system you never really owned.
+cask turns a folder of markdown files into a beautiful, navigable documentation site. Upload it to any web host, drop your content in, and you're done.
 
-cask.ink is built on a different idea entirely.
+No database. No npm. No build step. No monthly fee. No account to create.
 
-You write wherever you write. Plain `.md` files, in a folder, on your hard drive or your hosting or your Dropbox. You've probably got a folder like this already. cask.ink simply reads it, structures it, and presents it — to humans in a browser, and to AI tools via a built-in MCP endpoint. When you stop using cask.ink, your files are still exactly where you left them, in a format every text editor on earth can open.
+## What you're looking at right now
 
-This philosophy has a name: **file over app**, coined by Steph Ango. The file is the asset. The app is just a lens.
+This site *is* cask. The documentation you're reading is the product itself — a set of plain `.md` files sitting in a `/content/` folder, rendered by cask into the interface around them.
 
-## What cask.ink actually is
+When you download cask and install it on your own hosting, you get exactly this. You then delete these example files, add your own, and your documentation site is live.
 
-A zip file you unzip onto your web hosting. That is the entire install process.
+## Why cask exists
 
-Inside that zip is an `index.php` (or `index.html` on static hosts), a `style.css`, a handful of PHP files that do the work, and a `/content/` folder where your markdown files live. Point a browser at the directory, and you have a documentation site. No npm. No build step. No database. No cloud dependency.
+Most documentation tools ask too much of you. Static site generators require a terminal, a build process, and a deployment pipeline. Hosted platforms lock your content into their database and charge you monthly. Wikis need their own server stack.
 
-You write a markdown file, drop it in `/content/`, and it appears in the sidebar the next time anyone loads the page. That is the entire content management workflow.
+cask asks very little. If you can upload a zip file and write in markdown, you can run a cask site. Your content stays in plain text files you own outright. There's no vendor to depend on, no platform to migrate away from, and no database that can corrupt or disappear.
 
-## Who it's for
+## What cask is good for
 
-- Developers who want to document a project without configuring a documentation framework
-- Founders who want a product knowledge base without paying per-seat SaaS pricing
-- Writers who want to publish structured long-form content from plain text files
-- Anyone who has a folder of markdown files and wants the world to be able to read them
+- Product and API documentation
+- Internal team knowledge bases
+- Personal wikis and notes
+- Project documentation hosted alongside the project
 
-## The name
+## Where to go next
 
-A cask holds raw material — wine, whiskey, ink — unprocessed, in its original form, ready to be poured. Your markdown files are the raw material. cask.ink holds them and pours them out, directly, without processing them into something you no longer own.
+If you're ready to install cask on your own hosting, start with [[getting-started]].
+
+If you want to understand everything cask can do first, read [[features]].
+
+To learn how to write and structure your content, see [[content-management]].
